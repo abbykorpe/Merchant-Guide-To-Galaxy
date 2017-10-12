@@ -8,14 +8,14 @@ object Parser {
   private val FIRST_SENTENCE_EXTRACTOR = AlienNumberStatementExtractor
 
   def parseAlienNumberStatements(sentences: Sentences): Either[Violation, List[AlienNumberStatement]] = {
-    def extractAlienNumberStatements(map: Map[String, List[Sentence]]): List[AlienNumberStatement] = {
-      map("AlienNumberStatement").map {
+    def extractAlienNumberStatements(sentencesMap: Map[String, List[Sentence]]): List[AlienNumberStatement] = {
+      sentencesMap("AlienNumberStatement").map {
         case AlienNumberStatement(x, y) => AlienNumberStatement(x, y)
       }
     }
 
-    val either: Either[Violation, List[Sentence]] = sequence[Sentence](sentences.map(parseOneSentence))
-    either.map(Sentence.groupBySentences).map(extractAlienNumberStatements)
+    val parsedSentences: Either[Violation, List[Sentence]] = sequence[Sentence](sentences.map(parseOneSentence))
+    parsedSentences.map(Sentence.groupBySentences).map(extractAlienNumberStatements)
   }
 
   private def sequence[T](eitherList: List[Either[Violation, T]]): Either[Violation, List[T]] = {
@@ -43,24 +43,24 @@ object Parser {
   }
 
   def parseMetalStatements(sentences: Sentences, alienLanguage: AlienLanguage): Either[Violation, List[MetalStatement]] = {
-    def validateStatements(map: Map[String, List[Sentence]]): Either[Violation, List[MetalStatement]] = {
-      val metalStatements: List[MetalStatement] = map("MetalStatement").map {
+    def validateStatements(sentencesMap: Map[String, List[Sentence]]): Either[Violation, List[MetalStatement]] = {
+      val metalStatements: List[MetalStatement] = sentencesMap("MetalStatement").map {
         case MetalStatement(x, y, z) => MetalStatement(x, y, z)
       }
-      sequence[MetalStatement](metalStatements.map(ParserValidator.validateMetalStatement(_, alienLanguage)))
+      sequence[MetalStatement](metalStatements.map(MetalStatement.validateMetalStatement(_, alienLanguage)))
     }
 
-    val either: Either[Violation, List[Sentence]] = sequence[Sentence](sentences.map(parseOneSentence))
-    either.map(Sentence.groupBySentences).flatMap(validateStatements)
+    val parsedSentences: Either[Violation, List[Sentence]] = sequence[Sentence](sentences.map(parseOneSentence))
+    parsedSentences.map(Sentence.groupBySentences).flatMap(validateStatements)
   }
 
   def parseAllQuestions(sentences: Sentences, alienLanguage: AlienLanguage, metalDictionary: MetalDictionary): Either[Violation, Questions] = {
-    def validateQuestions(list: Questions): Either[Violation, Questions] = {
-      sequence[Sentence](list.map(ParserValidator.validateQuestion(_, alienLanguage, metalDictionary)))
+    def validateQuestions(questions: Questions): Either[Violation, Questions] = {
+      sequence[Sentence](questions.map(Question.validateQuestion(_, alienLanguage, metalDictionary)))
     }
 
-    val either: Either[Violation, List[Sentence]] = sequence[Sentence](sentences.map(parseOneSentence))
-    either.map(Sentence.sentencesToQuestions).flatMap(validateQuestions)
+    val parsedSentences: Either[Violation, List[Sentence]] = sequence[Sentence](sentences.map(parseOneSentence))
+    parsedSentences.map(Sentence.sentencesToQuestions).flatMap(validateQuestions)
   }
 
 }

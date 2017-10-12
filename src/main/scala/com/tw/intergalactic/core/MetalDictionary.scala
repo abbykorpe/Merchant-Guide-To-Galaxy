@@ -1,10 +1,10 @@
 package com.tw.intergalactic.core
 
-case class MetalDictionary(list: List[MetalStatement], alienLanguage: AlienLanguage) {
+case class MetalDictionary(metalStatements: List[MetalStatement], alienLanguage: AlienLanguage) {
   val metals: Map[String, Metal] = createMetalList()
 
   private def createMetalList(): Map[String, Metal] = {
-    list.map(l => {
+    metalStatements.map(l => {
       val quantity = RomanNumber.equivalentArabicNumberFor(alienLanguage.stringsToRomanNumberList(l.alienValue))
       (l.name, Metal(l.name, l.price / quantity, l.alienValue))
     }).toMap

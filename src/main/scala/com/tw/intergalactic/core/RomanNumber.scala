@@ -16,7 +16,7 @@ object RomanNumber extends Enumeration {
     M -> 1000L
   )
 
-  def createFromString(string: String): RomanNumber = string.trim match {
+  def createFromString(romanNumStr: String): RomanNumber = romanNumStr.trim match {
     case "I" => I
     case "V" => V
     case "X" => X
@@ -26,7 +26,7 @@ object RomanNumber extends Enumeration {
     case "M" => M
   }
 
-  def createFromStringList(list: List[String]): List[RomanNumber] = list.map(createFromString)
+  def createFromStringList(romanNumList: List[String]): List[RomanNumber] = romanNumList.map(createFromString)
 
   def isValid(rn: List[RomanNumber]): Either[Violation, Boolean] = {
     def iterate(violation: RomanNumberViolation): Either[RomanNumberViolation, Boolean] = {
